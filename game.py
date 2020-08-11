@@ -18,17 +18,30 @@ LEFT = (-1, 0)
 RIGHT = (1, 0)
 
 
-def drawGrid(surface):
+def drawGrid(surface, score):
+
+    if (score < 10):
+        lightColor = [1, 225, 154]
+        darkColor = [1, 209, 154]
+    elif(score < 20):
+        lightColor = [93, 216, 228]
+        darkColor = [84, 194, 205]
+    elif(score < 35):
+        lightColor = [240, 221, 0]
+        darkColor = [240, 198, 0]
+
     for y in range(0, int(GRID_HEIGHT)):
         for x in range(0, int(GRID_WIDTH)):
             if (x+y) % 2 == 0:
                 r = pygame.Rect((x*GRID_SIZE, y*GRID_SIZE),
                                 (GRID_SIZE, GRID_SIZE))
-                pygame.draw.rect(surface, (93, 216, 228), r)
+                pygame.draw.rect(
+                    surface, (lightColor[0], lightColor[1], lightColor[2]), r)
             else:
                 rr = pygame.Rect((x*GRID_SIZE, y*GRID_SIZE),
                                  (GRID_SIZE, GRID_SIZE))
-                pygame.draw.rect(surface, (84, 194, 205), rr)
+                pygame.draw.rect(
+                    surface, (darkColor[0], darkColor[1], darkColor[2]), rr)
 
 
 pygame.init()
@@ -68,15 +81,15 @@ def mainMenu():
         screen.blit(text_main_menu, (int(SCREEN_WIDTH/2-(text_main_menu.get_width()) /
                                          2), int((SCREEN_WIDTH/3))))
 
-        button_start = pygame.Rect((int(SCREEN_WIDTH/2-150/2), 200, 150, 40))
-        pygame.draw.rect(screen, (225, 0, 0), button_start)
+        button_play = pygame.Rect((int(SCREEN_WIDTH/2-150/2), 200, 150, 40))
+        pygame.draw.rect(screen, (225, 0, 0), button_play)
 
-        text_start = font.render("Start", True, (225, 225, 225))
-        text_rect = text_start.get_rect()
+        text_play = font.render("Play", True, (225, 225, 225))
+        text_rect = text_play.get_rect()
 
-        screen.blit(text_start, (int(240-text_rect.width/2), 210, 150, 40))
+        screen.blit(text_play, (int(240-text_rect.width/2), 210, 150, 40))
 
-        if button_start.collidepoint((mouse_x, mouse_y)):
+        if button_play.collidepoint((mouse_x, mouse_y)):
             if click:
                 run = False
                 return False, True, False
@@ -93,23 +106,35 @@ def mainMenu():
 
 
 def game():
+    temp = SCREEN_HEIGHT
+
     clock = pygame.time.Clock()
-    drawGrid(surface)
 
     snake = Snake()
     food = Food()
-
+    drawGrid(surface, snake.score)
     myfont = pygame.font.Font('freesansbold.ttf', 26)
 
     game_run = True
     while (game_run):
         clock.tick(10+snake.score*0.5)
         snake.handle_keys()
-        drawGrid(surface)
+        drawGrid(surface, snake.score)
         game_reset = snake.move()
         if(game_reset):
             game_run = False
             pygame.time.delay(1000)
+            while(temp != 0):
+                clock.tick(100)
+                rect_rollup = pygame.Rect(
+                    (0, temp, SCREEN_WIDTH, SCREEN_HEIGHT))
+                pygame.draw.rect(screen, (0, 0, 0), rect_rollup)
+                temp = temp-15
+                pygame.display.update()
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
 
         if snake.get_head_position() == food.position:
             snake.length += 1

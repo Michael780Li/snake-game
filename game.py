@@ -78,7 +78,7 @@ class Food(object):
         pygame.draw.rect(surface, (93, 216, 228), r, 1)
 
 
-#global variables
+# global variables
 SCREEN_WIDTH = 480
 SCREEN_HEIGHT = 480
 
@@ -106,7 +106,43 @@ def drawGrid(surface):
 
 
 def main():
+
     pygame.init()
+    pygame.display.set_caption('Snake Game')
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
+    surface = pygame.Surface(screen.get_size())
+    surface = surface.convert()
+
+    font = pygame.font.Font('freesansbold.ttf', 26)
+    text = font.render("Main Menu", 1, (255, 255, 255))
+
+    while True:
+        click = False
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        screen.fill((0, 0, 0))
+
+        screen.blit(text, (int(SCREEN_WIDTH/2-(text.get_width()) /
+                               2), int((SCREEN_WIDTH/3))))
+
+        button_start = pygame.Rect(int(SCREEN_WIDTH/2-150/2), 200, 150, 40)
+        pygame.draw.rect(screen, (225, 0, 0), button_start)
+        if button_start.collidepoint((mouse_x, mouse_y)):
+            if click:
+                game()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
+
+        pygame.display.update()
+
+
+def game():
+    # pygame.init()
 
     clock = pygame.time.Clock()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)

@@ -1,81 +1,7 @@
 import pygame
 import sys
-import random
 
-
-class Snake(object):
-    def __init__(self):
-        self.length = 1
-        self.positions = [((SCREEN_WIDTH/2), (SCREEN_HEIGHT/2))]
-        self.direction = random.choice([UP, DOWN, LEFT, RIGHT])
-        self.color = (17, 24, 47)
-        self.score = 0
-
-    def get_head_position(self):
-        return self.positions[0]
-
-    def turn(self, point):
-        if self.length > 1 and (point[0]*-1, point[1]*-1) == self.direction:
-            return
-        else:
-            self.direction = point
-
-    def move(self):
-        cur = self.get_head_position()
-        x, y = self.direction
-        new = (((cur[0]+(x*GRID_SIZE)) % SCREEN_WIDTH),
-               (cur[1]+(y*GRID_SIZE)) % SCREEN_HEIGHT)
-        if len(self.positions) > 2 and new in self.positions[2:]:
-            self.reset()
-
-        else:
-            self.positions.insert(0, new)
-            if len(self.positions) > self.length:
-                self.positions.pop()
-
-    def reset(self):
-        self.length = 1
-        self.positions = [((SCREEN_WIDTH/2), (SCREEN_HEIGHT/2))]
-        self.direction = random.choice([UP, DOWN, RIGHT, LEFT])
-        self.score = 0
-
-    def draw(self, surface):
-        for p in self.positions:
-            r = pygame.Rect((p[0], p[1]), (GRID_SIZE, GRID_SIZE))
-            pygame.draw.rect(surface, self.color, r)
-            pygame.draw.rect(surface, (93, 216, 228), r, 1)
-
-    def handle_keys(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    self.turn(UP)
-                elif event.key == pygame.K_DOWN:
-                    self.turn(DOWN)
-                elif event.key == pygame.K_RIGHT:
-                    self.turn(RIGHT)
-                elif event.key == pygame.K_LEFT:
-                    self.turn(LEFT)
-
-
-class Food(object):
-    def __init__(self):
-        self.position = (0, 0)
-        self.color = (223, 163, 49)
-        self.randomize_position()
-
-    def randomize_position(self):
-        self.position = (random.randint(0, GRID_WIDTH-1) *
-                         GRID_SIZE, random.randint(0, GRID_HEIGHT-1)*GRID_SIZE)
-
-    def draw(self, surface):
-        r = pygame.Rect(
-            (self.position[0], self.position[1]), (GRID_SIZE, GRID_SIZE))
-        pygame.draw.rect(surface, self.color, r)
-        pygame.draw.rect(surface, (93, 216, 228), r, 1)
+from gameMechanics import Snake, Food
 
 
 # global variables
@@ -105,31 +31,57 @@ def drawGrid(surface):
                 pygame.draw.rect(surface, (84, 194, 205), rr)
 
 
-def main():
+pygame.init()
+pygame.display.set_caption('Snake Game')
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
+surface = pygame.Surface(screen.get_size())
+surface = surface.convert()
 
-    pygame.init()
-    pygame.display.set_caption('Snake Game')
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
-    surface = pygame.Surface(screen.get_size())
-    surface = surface.convert()
+
+def main():
+    load_menu = True
+    load_game = False
+    load_end = False
+    while(True):
+        if (load_menu == True and load_game == False and load_end == False):
+            load_menu, load_game, load_end = mainMenu()
+        elif(load_menu == False and load_game == True and load_end == False):
+            game()
+            load_menu, load_game, load_end = False, False, True
+        else:
+            load_menu, load_game, load_end = endGame()
+
+
+def mainMenu():
 
     font = pygame.font.Font('freesansbold.ttf', 26)
-    text = font.render("Main Menu", 1, (255, 255, 255))
+    text_main_menu = font.render("Main Menu", 1, (255, 255, 255))
 
-    while True:
-        click = False
+    click = False
+    run = True
+    while run:
+
         mouse_x, mouse_y = pygame.mouse.get_pos()
+
         screen.fill((0, 0, 0))
 
-        screen.blit(text, (int(SCREEN_WIDTH/2-(text.get_width()) /
-                               2), int((SCREEN_WIDTH/3))))
+        screen.blit(text_main_menu, (int(SCREEN_WIDTH/2-(text_main_menu.get_width()) /
+                                         2), int((SCREEN_WIDTH/3))))
 
-        button_start = pygame.Rect(int(SCREEN_WIDTH/2-150/2), 200, 150, 40)
+        button_start = pygame.Rect((int(SCREEN_WIDTH/2-150/2), 200, 150, 40))
         pygame.draw.rect(screen, (225, 0, 0), button_start)
+
+        text_start = font.render("Start", True, (225, 225, 225))
+        text_rect = text_start.get_rect()
+
+        screen.blit(text_start, (int(240-text_rect.width/2), 210, 150, 40))
+
         if button_start.collidepoint((mouse_x, mouse_y)):
             if click:
-                game()
+                run = False
+                return False, True, False
 
+        click = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -137,30 +89,28 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     click = True
-
         pygame.display.update()
 
 
 def game():
-    # pygame.init()
-
     clock = pygame.time.Clock()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
-
-    surface = pygame.Surface(screen.get_size())
-    surface = surface.convert()
     drawGrid(surface)
 
     snake = Snake()
     food = Food()
 
-    myfont = pygame.font.SysFont("monospace", 16)
+    myfont = pygame.font.Font('freesansbold.ttf', 26)
 
-    while (True):
+    game_run = True
+    while (game_run):
         clock.tick(10+snake.score*0.5)
         snake.handle_keys()
         drawGrid(surface)
-        snake.move()
+        game_reset = snake.move()
+        if(game_reset):
+            game_run = False
+            pygame.time.delay(1000)
+
         if snake.get_head_position() == food.position:
             snake.length += 1
             snake.score += 1
@@ -170,6 +120,56 @@ def game():
         screen.blit(surface, (0, 0))
         text = myfont.render("score {0}".format(snake.score), 1, (0, 0, 0))
         screen.blit(text, (5, 10))
+        pygame.display.update()
+
+
+def endGame():
+    font = pygame.font.Font('freesansbold.ttf', 26)
+    click = False
+    run = True
+    while(run):
+
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        screen.fill((0, 0, 0))
+        text_lost = font.render("You Lost", True, (225, 225, 225))
+        text_rect = text_lost.get_rect()
+        screen.blit(text_lost, (int(SCREEN_WIDTH/2-(text_lost.get_width()) /
+                                    2), int((SCREEN_WIDTH/3)), 150, 40))
+
+        button_replay = pygame.Rect((int(SCREEN_WIDTH/2-150/2), 200, 150, 40))
+        pygame.draw.rect(screen, (225, 0, 0), button_replay)
+
+        text_replay = font.render("Replay", True, (225, 225, 225))
+        text_rect = text_replay.get_rect()
+
+        screen.blit(text_replay, (int(240-text_rect.width/2),
+                                  button_replay.y+10, 150, 40))
+
+        button_mm = pygame.Rect((int(SCREEN_WIDTH/2-150/2), 250, 150, 40))
+        pygame.draw.rect(screen, (225, 0, 0), button_mm)
+
+        text_mm = font.render("Menu", True, (225, 225, 225))
+        text_rect = text_mm.get_rect()
+
+        screen.blit(text_mm, (int(240-text_rect.width/2),
+                              button_mm.y+10, 150, 40))
+
+        if button_replay.collidepoint((mouse_x, mouse_y)):
+            if click:
+                run = False
+                return False, True, False
+        elif button_mm.collidepoint((mouse_x, mouse_y)):
+            if click:
+                run = False
+                return True, False, False
+        click = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
         pygame.display.update()
 
 

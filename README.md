@@ -1,4 +1,4 @@
-# snake-game
+# Snake!
 This program is based off the original snake arcade game. It consists of 3 elements, the menu page, game, and the game over page.
 
 When the player dies, the game preforms an upward sweep animation before showing the game over page.

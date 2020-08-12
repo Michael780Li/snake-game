@@ -19,7 +19,7 @@ class Snake(object):
         self.length = 1
         self.positions = [((SCREEN_WIDTH/2), (SCREEN_HEIGHT/2))]
         self.direction = random.choice([UP, DOWN, LEFT, RIGHT])
-        self.color = (0, 0, 0)
+        self.color = (0, 179, 0)
         self.score = 0
 
     def get_head_position(self):
@@ -39,7 +39,7 @@ class Snake(object):
         new = (((cur[0]+(x*GRID_SIZE)) % SCREEN_WIDTH),
                (cur[1]+(y*GRID_SIZE)) % SCREEN_HEIGHT)
         if len(self.positions) > 2 and new in self.positions[2:]:
-            self.reset()
+
             game_reset = True
         else:
             self.positions.insert(0, new)
@@ -78,7 +78,7 @@ class Snake(object):
 class Food(object):
     def __init__(self):
         self.position = (0, 0)
-        self.color = (223, 163, 49)
+        self.color = (225, 76, 62)
         self.randomize_position()
 
     def randomize_position(self):

@@ -14,4 +14,4 @@ Check out scrreenshots of the game below:
 
 Other levels:
 
-<img src=image_yellow.png width='200'>  <img src=image_red.png width='200'>  <img src=image_purple.png width='200'>
+<img src=image_yellow.png width='200'>  <img src=image_red.png width='200'>  <img src=image_purple.png width='200'> <img src=image_black.png width='200'>
